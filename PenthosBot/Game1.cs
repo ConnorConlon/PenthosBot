@@ -16,6 +16,8 @@ namespace PenthosBot
     /// </summary>
     public class Game1 : Game
     {
+        PrivateTwitchInfo TwitchInfo;
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         CChatBot m_ChatBot;
@@ -32,7 +34,7 @@ namespace PenthosBot
             Console.SetOut(streamwriter);
             Console.SetError(streamwriter);
 
-            PrivateTwitchInfo TwitchInfo = new PrivateTwitchInfo();
+            TwitchInfo = new PrivateTwitchInfo();
 
             graphics = new GraphicsDeviceManager(this);
             graphics.PreferredBackBufferWidth = 1280;
@@ -45,7 +47,7 @@ namespace PenthosBot
             //form.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             form.Location = new System.Drawing.Point((GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / 2) - (graphics.PreferredBackBufferWidth / 2), (GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height / 2) - (graphics.PreferredBackBufferHeight / 2));
 
-            m_ChatBot = new CChatBot();
+            m_ChatBot = new CChatBot(TwitchInfo);
         }
 
         /// <summary>

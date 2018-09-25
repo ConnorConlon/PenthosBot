@@ -75,8 +75,6 @@ namespace PenthosBot.Effects
                     m_videoPlayer.Play(m_video);
 
                     m_state = RunningState.RevingUp;
-
-                    m_client.SendMessage(TwitchInfo.ChannelName, "TwitchLit Reving Up... TwitchLit");
                 }
                 catch
                 {
@@ -103,7 +101,6 @@ namespace PenthosBot.Effects
                 if (m_ellapsedTime >= m_effectDelay)
                 {
                     m_state = RunningState.Running;
-                    m_client.SendMessage(TwitchInfo.ChannelName, "CurseLit LETS GOOOOO! CurseLit");
                 }
             }
 

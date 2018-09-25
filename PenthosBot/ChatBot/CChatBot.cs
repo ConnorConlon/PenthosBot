@@ -17,7 +17,8 @@ namespace PenthosBot.ChatBot
     public class CChatBot
     {
         #region Private Members
-        private readonly ConnectionCredentials m_credentials = new ConnectionCredentials(TwitchInfo.BotName, TwitchInfo.BotAccessToken);
+        private PrivateTwitchInfo TwitchInfo;
+        private readonly ConnectionCredentials m_credentials;
         private TwitchClient m_client;
         private TwitchAPI API;
         private string m_channelId;
@@ -47,8 +48,12 @@ namespace PenthosBot.ChatBot
         #endregion Private Members
 
         #region Ctor / Init
-        public CChatBot()
+        public CChatBot(PrivateTwitchInfo _TwitchInfo)
         {
+            TwitchInfo = _TwitchInfo;
+
+            m_credentials = new ConnectionCredentials(TwitchInfo.BotName, TwitchInfo.BotAccessToken);
+
             m_Messages = new List<BotMessageBase>();
 
             m_pennyMgr = new PennyManager();
