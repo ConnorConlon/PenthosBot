@@ -25,16 +25,12 @@ namespace PenthosBot.ChatBot
             if (System.IO.File.Exists(filePath))
             {
                 string[] lines = System.IO.File.ReadAllLines(filePath);
-                for(int i = 0; i < lines.Length; ++i)
+                for (int i = 0; i < lines.Length; ++i)
                 {
-                    if(i % 2 == 0)
-                    {
-                        m_textCommands.Add(lines[i], "");
-                    }
-                    else
-                    {
-                        m_textCommands[lines[i - 1]] = lines[i];
-                    }
+                    if (lines[i] == string.Empty) continue;
+
+                    m_textCommands.Add(lines[i], lines[i + 1]);
+                    i++;
                 }
             }
         }
