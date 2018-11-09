@@ -494,8 +494,8 @@ namespace PenthosBot.ChatBot
                 XmlDocument doc = new XmlDocument();
                 doc.Load(filePath);
 
-                int.TryParse(doc.DocumentElement.SelectSingleNode("/BotData/deaths").Value, out m_iDeaths);
-                int.TryParse(doc.DocumentElement.SelectSingleNode("/BotData/crashes").Value, out m_iCrashCount);
+                int.TryParse(doc.DocumentElement.SelectSingleNode("/BotData/deaths").InnerText, out m_iDeaths);
+                int.TryParse(doc.DocumentElement.SelectSingleNode("/BotData/crashes").InnerText, out m_iCrashCount);
 
                 m_pennyMgr.Load(doc);
             }
