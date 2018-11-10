@@ -13,11 +13,22 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin YouDied.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
+#begin airhorns.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
 /processorParam:Quality=Best
-/build:YouDied.wav
+/build:airhorns.mp3
+
+#begin running90s.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:running90s.mp3
+
+#begin speedeffect.mp4
+/importer:H264Importer
+/processor:VideoProcessor
+/build:speedeffect.mp4
 
 #begin victory.mp3
 /importer:Mp3Importer
@@ -25,14 +36,9 @@
 /processorParam:Quality=Best
 /build:victory.mp3
 
-#begin speedeffect.mp4
-/importer:H264Importer
-/processor:VideoProcessor
-/build:speedeffect.mp4
-
-#begin running90s.mp3
-/importer:Mp3Importer
-/processor:SongProcessor
+#begin YouDied.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:running90s.mp3
+/build:YouDied.wav
 

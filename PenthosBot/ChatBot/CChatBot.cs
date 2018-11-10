@@ -192,7 +192,7 @@ namespace PenthosBot.ChatBot
         public void BeatBoss()
         {
             m_client.SendMessage(TwitchInfo.ChannelName, "Penthos beat the boss! FeelsGoodMan");
-            m_Messages.Add(new PlayMusicMessage("BossVictory", 0.2f, new TimeSpan(0, 2, 32)));
+            m_Messages.Add(new PlayMusicMessage("airhorns", 0.2f, new TimeSpan(0, 2, 32)));
 
             Dictionary<string, int> attemptWinners = m_gambler.BeatAttempt();
             foreach(KeyValuePair<string, int> winner in attemptWinners)
@@ -294,8 +294,8 @@ namespace PenthosBot.ChatBot
                 {
                     if(DoesUserHaveModPriv(args.Command.ChatMessage))
                     {
-                        m_gambler.EnableAttempBetting();
-                        m_client.SendMessage(TwitchInfo.ChannelName, "Attempt betting has been enabled! Think that this will be the attemp? !gamble attempt <amount>");
+                        m_gambler.AttemptBettingEnabled = true;
+                        m_client.SendMessage(TwitchInfo.ChannelName, "Attempt betting has been enabled! Think that this will be the attempt? !gamble attempt <amount>");
                     }
                 }
                 else if (String.Compare(cmdText, "gamble", true) == 0)
@@ -335,45 +335,32 @@ namespace PenthosBot.ChatBot
                         }
                         else if(gambleArgs[0] == "attempt")
                         {
-                            if (gambleArgs.Count != 2)
+                            if(m_gambler.AttemptBettingEnabled)
                             {
-                                m_client.SendMessage(TwitchInfo.ChannelName, "Format: !gamble attempt <amount>. Ex. !gamble attempt 200");
-                            }
-                            else
-                            {
-                                string username = args.Command.ChatMessage.Username;
-                                int iPennies = m_pennyMgr.GetPennies(username);
-                                if (iPennies > 0)
+                                if (gambleArgs.Count != 2)
                                 {
-                                    int iAmount = -1;
-                                    int.TryParse(gambleArgs[1], out iAmount);
-
-                                    if (iAmount != -1 && iAmount <= iPennies)
+                                    m_client.SendMessage(TwitchInfo.ChannelName, "Format: !gamble attempt <amount>. Ex. !gamble attempt 200");
+                                }
+                                else
+                                {
+                                    string username = args.Command.ChatMessage.Username;
+                                    int iPennies = m_pennyMgr.GetPennies(username);
+                                    if (iPennies > 0)
                                     {
-                                        m_pennyMgr.RemovePennies(username, iAmount);
-                                        m_gambler.AttemptBet(username, iAmount);
+                                        int iAmount = -1;
+                                        int.TryParse(gambleArgs[1], out iAmount);
+
+                                        if (iAmount != -1 && iAmount <= iPennies)
+                                        {
+                                            m_pennyMgr.RemovePennies(username, iAmount);
+                                            m_gambler.AttemptBet(username, iAmount);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }
-
-            if(String.Compare(cmdText, "RIP", true) == 0)
-            {
-                m_client.SendMessage(TwitchInfo.ChannelName, "Penthos did something stupid and now he's dead FeelsBadMan");
-            }
-
-            if(String.Compare(cmdText, "rolled", true) == 0 ||
-                String.Compare(cmdText, "roll", true) == 0)
-            {
-                m_client.SendMessage(TwitchInfo.ChannelName, "Penthos totally rolled that! Kappa");
-            }
-
-            if(String.Compare(cmdText, "twitter", true) == 0)
-            {
-                m_client.SendMessage(TwitchInfo.ChannelName, "Check out my twitter! https://twitter.com/PenthosGaming");
             }
         }
 

@@ -28,9 +28,10 @@ namespace PenthosBot.ChatBot
             m_attemptBetters.Clear();
         }
 
-        internal void EnableAttempBetting()
+        public bool AttemptBettingEnabled
         {
-            m_bAttemptsEnabled = true;
+            get { return m_bAttemptsEnabled; }
+            set { m_bAttemptsEnabled = value; }
         }
 
         internal void AttemptBet(string name, int iAmount)
