@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="ChatBot\BotMessages.cs" />
     <Compile Include="ChatBot\CChatBot.cs" />
+    <Compile Include="ChatBot\GiveawayManager.cs" />
     <Compile Include="ChatBot\PennyManager.cs" />
     <Compile Include="ChatBot\PennyGambler.cs" />
     <Compile Include="ChatBot\TextCommands.cs" />

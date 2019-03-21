@@ -23,9 +23,6 @@ namespace PenthosBot
         CChatBot m_ChatBot;
         KeyboardState m_previousKeyboardState;
 
-        // screen effects
-        DejaVu m_dejaVu;
-
         public Game1()
         {
             FileStream filestream = new FileStream("log.txt", FileMode.Create);
@@ -76,8 +73,6 @@ namespace PenthosBot
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            m_dejaVu = new DejaVu(Content, GraphicsDevice, m_ChatBot.Client);
         }
 
         /// <summary>
@@ -107,8 +102,6 @@ namespace PenthosBot
                 msg.Execute();
             }
 
-            m_dejaVu.Update(gameTime);
-
             base.Update(gameTime);
         }
 
@@ -119,13 +112,6 @@ namespace PenthosBot
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Transparent);
-
-            if(m_dejaVu.IsRunning() && m_dejaVu.GetEffect() != null)
-            {
-                spriteBatch.Begin();
-                m_dejaVu.Draw(spriteBatch, GraphicsDevice.Viewport.Bounds);
-                spriteBatch.End();
-            }
 
             base.Draw(gameTime);
         }
@@ -165,17 +151,6 @@ namespace PenthosBot
             if(IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.S))
             {
                 MediaPlayer.Stop();
-                m_dejaVu.Halt();
-            }
-
-            if(IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.P))
-            {
-                m_dejaVu.RunInThe90s();
-            }
-
-            if(IsKeyPressed(Microsoft.Xna.Framework.Input.Keys.O))
-            {
-                m_dejaVu.Halt();
             }
 
             m_previousKeyboardState = Keyboard.GetState();

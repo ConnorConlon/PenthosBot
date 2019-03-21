@@ -25,6 +25,7 @@ namespace PenthosBot.ChatBot
 
         private PennyManager m_pennyMgr;
         private PennyGambler m_gambler;
+        private GiveawayManager m_giveaway;
         private TextCommands m_textCommands;
 
         private List<BotMessageBase> m_Messages;
@@ -58,6 +59,7 @@ namespace PenthosBot.ChatBot
 
             m_pennyMgr = new PennyManager();
             m_gambler = new PennyGambler();
+            m_giveaway = new GiveawayManager();
 
             m_textCommands = new TextCommands();
 
@@ -209,7 +211,7 @@ namespace PenthosBot.ChatBot
         public void Crash()
         {
             m_iCrashCount++;
-            m_client.SendMessage(TwitchInfo.ChannelName, "Dark Souls has crashed " + m_iCrashCount.ToString() + " times FeelsBadMan");
+            m_client.SendMessage(TwitchInfo.ChannelName, "Sekiro has crashed " + m_iCrashCount.ToString() + " times FeelsBadMan");
             m_Messages.Add(new PlaySoundMessage("YouDied", 0.2f));
         }
         #endregion Public Methods
@@ -258,7 +260,8 @@ namespace PenthosBot.ChatBot
             }
             else
             {
-                // Complex Command
+                // COMPLEX COMMANDS
+                // Misc
                 if (String.Compare(cmdText, "uptime", true) == 0)
                 {
                     OutputUptime().Wait();
@@ -277,7 +280,9 @@ namespace PenthosBot.ChatBot
                         ShoutoutUser(args.Command.ArgumentsAsString);
                     }
                 }
-                else if (String.Compare(cmdText, "pennies", true) == 0)
+
+                // Pennies
+                if (String.Compare(cmdText, "pennies", true) == 0)
                 {
                     string username = args.Command.ChatMessage.Username;
                     int iPennies = m_pennyMgr.GetPennies(username);
@@ -290,24 +295,83 @@ namespace PenthosBot.ChatBot
                         m_client.SendWhisper(args.Command.ChatMessage.DisplayName, "You don't have any Pennies yet FeelsBadMan");
                     }
                 }
-                else if(String.Compare(cmdText, "enableattempts", true) == 0)
+
+                // Giveaways
+                if (String.Compare(cmdText, "entergiveaway", true) == 0)
                 {
-                    if(DoesUserHaveModPriv(args.Command.ChatMessage))
+                    if(m_giveaway.RunningGiveaway)
+                    {
+                        string username = args.Command.ChatMessage.Username;
+
+                        if (m_pennyMgr.GetPennies(username) > 30)
+                        {
+                            m_pennyMgr.RemovePennies(username, 30);
+                            m_giveaway.EnterGiveaway(username);
+                        }
+                    }
+                }
+
+                if (IsUserBroadcaster(args.Command.ChatMessage))
+                {
+                    if (String.Compare(cmdText, "startgiveaway", true) == 0)
+                    {
+                        m_giveaway.RunningGiveaway = true;
+                        m_client.SendMessage(TwitchInfo.ChannelName, "GIVEAWAY STARTED! Enter up to 3 times with !entergiveaway. 30 Pennies per entry.");
+                    }
+
+                    if (String.Compare(cmdText, "stopGiveAway", true) == 0)
+                    {
+                        if(m_giveaway.RunningGiveaway)
+                        {
+                            m_giveaway.RunningGiveaway = false;
+
+                            Dictionary<string, int> refunds = m_giveaway.Participants;
+                            foreach (KeyValuePair<string, int> participant in refunds)
+                            {
+                                for (int i = 0; i < participant.Value; ++i)
+                                {
+                                    m_pennyMgr.AddPennies(participant.Key, 30);
+                                }
+                            }
+
+                            m_giveaway.ClearParticipants();
+                            m_client.SendMessage(TwitchInfo.ChannelName, "GIVEAWAY CANCELLED! Pennies have been refunded.");
+                        }
+                    }
+
+                    if (String.Compare(cmdText, "pickwinner", true) == 0)
+                    {
+                        if(m_giveaway.RunningGiveaway)
+                        {
+                            string winner = m_giveaway.PickWinner();
+                            m_giveaway.RunningGiveaway = false;
+                            m_giveaway.ClearParticipants();
+                            m_client.SendMessage(TwitchInfo.ChannelName, "CONGRATULATIONS TO " + winner + "! YOU WIN THE GIVEAWAY!");
+                        }
+                    }
+                }
+
+                // Gambling
+                if (String.Compare(cmdText, "enableattempts", true) == 0)
+                {
+                    if (DoesUserHaveModPriv(args.Command.ChatMessage))
                     {
                         m_gambler.AttemptBettingEnabled = true;
                         m_client.SendMessage(TwitchInfo.ChannelName, "Attempt betting has been enabled! Think that this will be the attempt? !gamble attempt <amount>");
                     }
                 }
-                else if (String.Compare(cmdText, "gamble", true) == 0)
+
+                if (String.Compare(cmdText, "gamble", true) == 0)
                 {
                     List<string> gambleArgs = args.Command.ArgumentsAsList;
                     if (gambleArgs.Count == 0)
                     {
                         m_client.SendMessage(TwitchInfo.ChannelName, "MoneyRest Feel like putting your Pennies on the line? " +
-                            "Type \"!gamble <game>\" to learn more. Games supported: roulette.");
+                            "Type \"!gamble <game>\" to learn more. Games supported: attempt.");
                     }
                     else
                     {
+                        /*
                         if (gambleArgs[0] == "roulette")
                         {
                             if (gambleArgs.Count != 3)
@@ -333,7 +397,8 @@ namespace PenthosBot.ChatBot
                                 }
                             }
                         }
-                        else if(gambleArgs[0] == "attempt")
+                        */
+                        if(gambleArgs[0] == "attempt")
                         {
                             if(m_gambler.AttemptBettingEnabled)
                             {
@@ -441,6 +506,11 @@ namespace PenthosBot.ChatBot
             return chatMsg.IsModerator || chatMsg.IsBroadcaster;
         }
 
+        private bool IsUserBroadcaster(ChatMessage chatMsg)
+        {
+            return chatMsg.IsBroadcaster;
+        }
+
         private bool DoesUserHaveSubPriv(ChatMessage chatMsg)
         {
             return chatMsg.IsSubscriber || chatMsg.IsBroadcaster;
@@ -475,7 +545,7 @@ namespace PenthosBot.ChatBot
 
         private void LoadVariables()
         {
-            string filePath = @"C:\Users\Connor\Documents\Twitch\PennyBot\SaveData\botdata.xml";
+            string filePath = @"E:\Connor\Twitch\PennyBot\SaveData\botdata.xml";
             if (System.IO.File.Exists(filePath))
             {
                 XmlDocument doc = new XmlDocument();
@@ -490,7 +560,7 @@ namespace PenthosBot.ChatBot
 
         private void LoadTextCommands()
         {
-            string filePath = @"C:\Users\Connor\Documents\Twitch\PennyBot\SaveData\textcommands.txt";
+            string filePath = @"E:\Connor\Twitch\PennyBot\SaveData\textcommands.txt";
             m_textCommands.LoadTextCommands(filePath);
         }
 
@@ -498,7 +568,7 @@ namespace PenthosBot.ChatBot
         {
             XmlWriterSettings formatting = new XmlWriterSettings();
             formatting.Indent = true;
-            XmlWriter writer = XmlWriter.Create(@"C:\Users\Connor\Documents\Twitch\PennyBot\SaveData\botdata.xml", formatting);
+            XmlWriter writer = XmlWriter.Create(@"E:\Connor\Twitch\PennyBot\SaveData\botdata.xml", formatting);
 
             writer.WriteStartDocument();
 
